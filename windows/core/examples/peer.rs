@@ -55,9 +55,13 @@ fn main() {
     loop {
         let Ok((_, event)) = rx.recv_timeout(Duration::from_secs(60)) else { break };
         match event {
-            LinkEvent::Accepted(l) => link = Some(l),
+            LinkEvent::Accepted(l) => {
+                eprintln!("peer: 收到新连接（{:.1}s）", started.elapsed().as_secs_f64());
+                link = Some(l);
+            }
             LinkEvent::Ready => {
                 ready = true;
+                eprintln!("peer: 握手完成 {:?}", link.as_ref().and_then(|l| l.addrs()));
                 let hello = Message::Hello {
                     version: PROTOCOL_VERSION,
                     name: "Rust 对端".into(),
