@@ -6,6 +6,7 @@ final class WireTests: XCTestCase {
     private let samples: [Message] = [
         .hello(version: 1, name: "Mac mini 客厅", channel: .control),
         .hello(version: 3, name: "MacBook", channel: .video),
+        .hello(version: 8, name: "Windows 书房", channel: .control, platform: .windows),
         .ping,
         .layout(displays: [CGRect(x: 0, y: 0, width: 1512, height: 982), CGRect(x: -1920, y: -98, width: 1920, height: 1080)]),
         .enter(x: 3.5, y: 490.25),
@@ -61,6 +62,18 @@ final class WireTests: XCTestCase {
         var w = ByteWriter()
         w.u8(1); w.u16(2); w.string("旧版")
         XCTAssertEqual(try Message(decoding: w.data), .hello(version: 2, name: "旧版", channel: .control))
+    }
+
+    func testV7HelloWithoutPlatformDecodesAsMac() throws {
+        var w = ByteWriter()
+        w.u8(1); w.u16(7); w.string("M"); w.u8(Channel.video.rawValue)
+        XCTAssertEqual(try Message(decoding: w.data), .hello(version: 7, name: "M", channel: .video, platform: .mac))
+    }
+
+    func testHelloBytesMatchRustImplementation() {
+        // 与 windows/core/tests/message_tests.rs 里的 golden_bytes_match_swift_layout 相同
+        XCTAssertEqual(Message.hello(version: 8, name: "PC", channel: .video, platform: .windows).encoded(),
+                       Data([1, 8, 0, 2, 0, 0, 0, UInt8(ascii: "P"), UInt8(ascii: "C"), 1, 1]))
     }
 
     func testOversizedFrameIsRejected() {

@@ -1,0 +1,14 @@
+[package]
+name = "boundless-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "无界的跨平台部分：协议、加密连接、局域网发现、切换逻辑与各种换算"
+
+[dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "time", "sync", "macros"] }
+tokio-openssl = "0.6"
+mdns-sd = "0.21"
+image = { version = "0.25", default-features = false, features = ["png", "tiff", "bmp"] }
+rand = "0.8"

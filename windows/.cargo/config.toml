@@ -1,0 +1,4 @@
+# 在 macOS / Linux 上交叉编译 Windows 版：brew install mingw-w64，然后
+#   cargo build --release --target x86_64-pc-windows-gnu -p boundless
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"

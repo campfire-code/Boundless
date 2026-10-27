@@ -62,6 +62,12 @@ public enum Channel: UInt8 {
     case video = 1
 }
 
+/// 对端系统。Windows 端不支持虚拟副屏，主控端据此隐藏相关菜单
+public enum Platform: UInt8 {
+    case mac = 0
+    case windows = 1
+}
+
 public enum VideoCodec: UInt8 {
     case h264 = 0
     case hevc = 1
@@ -69,8 +75,8 @@ public enum VideoCodec: UInt8 {
 
 /// 两端之间传输的全部消息
 public enum Message: Equatable {
-    /// 连接建立后双方互报协议版本、设备名与通道用途
-    case hello(version: UInt16, name: String, channel: Channel)
+    /// 连接建立后双方互报协议版本、设备名、通道用途与系统
+    case hello(version: UInt16, name: String, channel: Channel, platform: Platform = .mac)
     /// 心跳
     case ping
     /// 被控端 → 主控端：本机显示器布局（被控端坐标），连接后及屏幕变化时发送
@@ -130,8 +136,8 @@ extension Message {
     func encoded() -> Data {
         var w = ByteWriter()
         switch self {
-        case let .hello(version, name, channel):
-            w.u8(Tag.hello.rawValue); w.u16(version); w.string(name); w.u8(channel.rawValue)
+        case let .hello(version, name, channel, platform):
+            w.u8(Tag.hello.rawValue); w.u16(version); w.string(name); w.u8(channel.rawValue); w.u8(platform.rawValue)
         case .ping:
             w.u8(Tag.ping.rawValue)
         case let .layout(displays):
@@ -197,13 +203,17 @@ extension Message {
         switch tag {
         case .hello:
             let version = try r.u16(), name = try r.string()
-            // 旧版本的 hello 没有通道字段，照样解出来，好让上层提示「版本不一致」而不是直接断开
-            if r.isAtEnd {
-                self = .hello(version: version, name: name, channel: .control)
-            } else {
-                guard let channel = Channel(rawValue: try r.u8()) else { throw WireError.invalidValue }
-                self = .hello(version: version, name: name, channel: channel)
+            // 旧版本的 hello 没有通道、平台字段，照样解出来，好让上层提示「版本不一致」而不是直接断开
+            var channel = Channel.control, platform = Platform.mac
+            if !r.isAtEnd {
+                guard let c = Channel(rawValue: try r.u8()) else { throw WireError.invalidValue }
+                channel = c
             }
+            if !r.isAtEnd {
+                guard let p = Platform(rawValue: try r.u8()) else { throw WireError.invalidValue }
+                platform = p
+            }
+            self = .hello(version: version, name: name, channel: channel, platform: platform)
         case .ping:
             self = .ping
         case .layout:

@@ -1,0 +1,25 @@
+#pragma code_page(65001)
+
+1 ICON "boundless.ico"
+1 24 "boundless.manifest"
+
+1 VERSIONINFO
+FILEVERSION 0,2,0,0
+PRODUCTVERSION 0,2,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080404B0"
+    BEGIN
+      VALUE "FileDescription", "无界"
+      VALUE "ProductName", "无界 Boundless"
+      VALUE "FileVersion", "0.2.0"
+      VALUE "ProductVersion", "0.2.0"
+      VALUE "OriginalFilename", "Boundless.exe"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0804, 1200
+  END
+END

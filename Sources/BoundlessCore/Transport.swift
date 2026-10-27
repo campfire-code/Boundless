@@ -4,7 +4,7 @@ import Security
 
 public enum Transport {
     public static let serviceType = "_boundless._tcp"
-    public static let protocolVersion: UInt16 = 7
+    public static let protocolVersion: UInt16 = 8
 
     /// TLS 1.2 预共享密钥 + TCP 关闭 Nagle，配对码不一致时握手直接失败；interface 非空时只走这张网卡
     public static func parameters(psk: Data, interface: NWInterface? = nil) -> NWParameters {

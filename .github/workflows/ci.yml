@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  mac:
+    name: Mac 版测试 + 与 Windows 版互通测试
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust 跨平台核心库测试
+        working-directory: windows
+        run: cargo test --workspace
+      - name: 编译互通测试用的 Rust 对端
+        working-directory: windows
+        run: cargo build --example peer -p boundless-core
+      - name: Swift 测试（含互通测试）
+        run: BOUNDLESS_RUST_PEER=$PWD/windows/target/debug/examples/peer swift test
+
+  windows:
+    name: Windows 版测试与打包
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 测试（含 Windows 专属：扫描码表、剪贴板、钩子事件换算）
+        working-directory: windows
+        run: cargo test --workspace
+      - name: 编译 release
+        working-directory: windows
+        run: cargo build --release -p boundless
+      - name: 打包
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Copy-Item windows/target/release/boundless.exe out/Boundless.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Boundless-Windows
+          path: out/Boundless.exe
+
+  cross:
+    name: 在 Linux 上交叉编译 Windows 版（与 macOS 本地构建同一工具链）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y mingw-w64
+      - run: rustup target add x86_64-pc-windows-gnu
+      - working-directory: windows
+        run: cargo build --release --target x86_64-pc-windows-gnu -p boundless

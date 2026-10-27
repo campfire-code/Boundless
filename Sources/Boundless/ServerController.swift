@@ -16,6 +16,8 @@ final class ServerController {
     private var pending: [Link] = []
     private var link: Link?
     private var peerName: String?
+    /// 被控端的系统；Windows 被控端没有虚拟副屏
+    private(set) var peerPlatform: Platform?
     private var lastError: String?
     private var captureRetry: Timer?
     private var screenObserver: NSObjectProtocol?
@@ -42,6 +44,8 @@ final class ServerController {
     }
 
     var isConnected: Bool { link != nil }
+    /// 被控端能否把窗口显示到本机（Windows 被控端不支持）
+    var supportsVirtualScreen: Bool { peerPlatform != .windows }
     var isRemote: Bool { logic.mode == .remote }
     var desktop: Desktop { logic.desktop }
     var arrangement: Arrangement? { logic.arrangement }
@@ -196,7 +200,9 @@ final class ServerController {
             l.send(.hello(version: Transport.protocolVersion, name: SystemInfo.computerName, channel: .control))
         case let .message(m):
             if pending.contains(where: { $0 === l }) {
-                if case let .hello(version, name, channel) = m { identify(l, version: version, name: name, channel: channel) }
+                if case let .hello(version, name, channel, platform) = m {
+                    identify(l, version: version, name: name, channel: channel, platform: platform)
+                }
                 return
             }
             if l === videoLink {
@@ -215,6 +221,7 @@ final class ServerController {
             NSLog("Boundless 主控端：被控端断开 \(error.map { "\($0)" } ?? "")")
             link = nil
             peerName = nil
+            peerPlatform = nil
             remoteWindows = []
             closeOverlay()
             apply(logic.setConnected(false))
@@ -222,7 +229,7 @@ final class ServerController {
         onChange?()
     }
 
-    private func identify(_ l: Link, version: UInt16, name: String, channel: Channel) {
+    private func identify(_ l: Link, version: UInt16, name: String, channel: Channel, platform: Platform) {
         pending.removeAll { $0 === l }
         guard version == Transport.protocolVersion else {
             lastError = "\(name) 的无界版本不一致，请两台装同一版本"
@@ -239,6 +246,7 @@ final class ServerController {
             }
             link = l
             peerName = name
+            peerPlatform = platform
             settings.clientName = name
             lastError = nil
             NSLog("Boundless 主控端：被控端 \(name) 已连接")

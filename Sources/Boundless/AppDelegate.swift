@@ -159,11 +159,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         })
 
         menu.addItem(ActionItem("屏幕排列…") { [weak self] in self?.showArrangement() })
-        // 打开菜单时就去要窗口列表，展开子菜单时一般已经到了；晚到的会就地刷新
-        server?.requestWindowList()
-        let mirrorItem = submenu("把被控端窗口移过来", mirrorMenu)
-        mirrorItem.isEnabled = server?.isConnected ?? false
-        menu.addItem(mirrorItem)
+        if server?.supportsVirtualScreen ?? true {
+            // 打开菜单时就去要窗口列表，展开子菜单时一般已经到了；晚到的会就地刷新
+            server?.requestWindowList()
+            let mirrorItem = submenu("把被控端窗口移过来", mirrorMenu)
+            mirrorItem.isEnabled = server?.isConnected ?? false
+            menu.addItem(mirrorItem)
+        }
         menu.addItem(ActionItem("重新生成配对码…") { [weak self] in self?.regenerateCode() })
         if let server, let side = server.arrangement?.side(relativeTo: server.desktop) {
             menu.addItem(info("快捷键：⌃⌥⌘\(side.arrowSymbol) 过去，⌃⌥⌘\(side.opposite.arrowSymbol) 回来"))

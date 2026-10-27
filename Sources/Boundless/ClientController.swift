@@ -201,7 +201,7 @@ final class ClientController {
 
     private func receive(_ message: Message) {
         switch message {
-        case let .hello(version, name, _):
+        case let .hello(version, name, _, _):
             if version == Transport.protocolVersion {
                 peerName = name
                 NSLog("Boundless 被控端：主控端是 \(name)")
