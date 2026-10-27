@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>app.boundless.Boundless</string>
+	<key>CFBundleName</key>
+	<string>Boundless</string>
+	<key>CFBundleDisplayName</key>
+	<string>Boundless</string>
+	<key>CFBundleExecutable</key>
+	<string>Boundless</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>LSHasLocalizedDisplayName</key>
+	<true/>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>无界需要访问局域网，以便发现并连接另一台 Mac。</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_boundless._tcp</string>
+	</array>
+</dict>
+</plist>

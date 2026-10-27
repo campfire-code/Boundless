@@ -1,0 +1,3 @@
+CFBundleName = "无界";
+CFBundleDisplayName = "无界";
+NSLocalNetworkUsageDescription = "无界需要访问局域网，以便发现并连接另一台 Mac。";

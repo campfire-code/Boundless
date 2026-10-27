@@ -1,0 +1,3 @@
+CFBundleName = "Boundless";
+CFBundleDisplayName = "Boundless";
+NSLocalNetworkUsageDescription = "Boundless needs local network access to find and connect to your other Mac.";
